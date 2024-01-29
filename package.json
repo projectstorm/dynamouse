@@ -9,9 +9,10 @@
     "url": "dylanvorster.com"
   },
   "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
     "start": "electron .",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx}\"",
-    "watch": "tsc --watch",
     "app:dir": "electron-builder --dir",
     "app:dist": "electron-builder",
     "prepare": "rm -rf node_modules/electron/dist && node node_modules/electron/install.js"
