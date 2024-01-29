@@ -28,11 +28,13 @@ jobs:
         with:
           version: latest
 
+      - name: PNPM install
+        run: pnpm install
+
       - name: Build/release Electron app
         uses: paneron/action-electron-builder@v1.8.1
         with:
           package_manager: "pnpm"
-          skip_package_manager_install: false
           # GitHub token, automatically provided to the action
           # (No need to define this secret in the repo settings)
           github_token: ${{ secrets.github_token }}
