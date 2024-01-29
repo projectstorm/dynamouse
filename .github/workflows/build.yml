@@ -29,7 +29,7 @@ jobs:
           version: latest
 
       - name: Build/release Electron app
-        uses: samuelmeuli/action-electron-builder@v1
+        uses: paneron/action-electron-builder@v1.8.1
         with:
           package_manager: "pnpm"
           # GitHub token, automatically provided to the action
