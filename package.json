@@ -1,0 +1,27 @@
+{
+  "name": "@projectstorm/dynamouse",
+  "license": "MIT",
+  "scripts": {
+    "start": "electron .",
+    "format": "prettier --write \"**/*.{ts,tsx,js,jsx}\"",
+    "watch": "tsc --watch"
+  },
+  "main": "dist/main.js",
+  "dependencies": {
+    "uuid": "^9.0.1",
+    "node-hid": "^3.0.0",
+    "electron-json-storage": "^4.6.0",
+    "usb": "^2.11.0",
+    "lodash": "^4.17.21",
+    "@jitsi/robotjs": "^0.6.13"
+  },
+  "devDependencies": {
+    "@types/electron-json-storage": "^4.5.4",
+    "@types/uuid": "^9.0.8",
+    "@types/node": "^20.11.10",
+    "electron": "^28.2.0",
+    "typescript": "^5.3.3",
+    "prettier": "^3.2.4",
+    "@types/lodash": "^4.14.202"
+  }
+}
