@@ -28,15 +28,10 @@ jobs:
         with:
           version: latest
 
-      - name: Install Dependencies
-        run: pnpm install
-
-      - name: Build
-        run: pnpm build
-
       - name: Build/release Electron app
         uses: samuelmeuli/action-electron-builder@v1
         with:
+          package_manager: "pnpm"
           # GitHub token, automatically provided to the action
           # (No need to define this secret in the repo settings)
           github_token: ${{ secrets.github_token }}
