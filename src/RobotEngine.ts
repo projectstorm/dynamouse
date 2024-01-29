@@ -1,16 +1,15 @@
-import {Display} from "electron";
-import {Config} from "./ConfigEngine";
-import {PointerDevice, PointerEngine} from "./PointerEngine";
-import {DisplayEngine} from "./DisplayEngine";
-import {BaseObserver} from "./BaseObserver";
-import {screen} from "electron"
-import {moveMouse} from "@jitsi/robotjs"
+import { Display } from "electron";
+import { Config } from "./ConfigEngine";
+import { PointerDevice, PointerEngine } from "./PointerEngine";
+import { DisplayEngine } from "./DisplayEngine";
+import { BaseObserver } from "./BaseObserver";
+import { screen } from "electron";
+import { moveMouse } from "@jitsi/robotjs";
 
 export interface AssignmentListener {
   willActivate: () => any;
   disposed: () => any;
 }
-
 
 export class Assignment extends BaseObserver<AssignmentListener> {
   position_x: number;
@@ -31,23 +30,23 @@ export class Assignment extends BaseObserver<AssignmentListener> {
     this.listener = device.registerListener({
       moved: () => {
         if (!this.activated) {
-          this.iterateListeners(cb => cb.willActivate?.());
+          this.iterateListeners((cb) => cb.willActivate?.());
         }
-      }
-    })
+      },
+    });
   }
 
   async init() {
     return this.device.connect();
   }
 
-  contains(px: number, py: number){
-    if(px == null || py == null){
+  contains(px: number, py: number) {
+    if (px == null || py == null) {
       return false;
     }
-    const {x, y, width, height} = this.display.bounds;
+    const { x, y, width, height } = this.display.bounds;
     const insideHorizontal = px > x && px < x + width;
-    const insideVertical = py > y &&py < y + height;
+    const insideVertical = py > y && py < y + height;
     return insideHorizontal && insideVertical;
   }
 
@@ -63,28 +62,28 @@ export class Assignment extends BaseObserver<AssignmentListener> {
     if (this.activated) {
       return;
     }
-    const {x, y, width, height} = this.display.bounds;
+    const { x, y, width, height } = this.display.bounds;
     let pos_x = this.position_x;
     let pos_y = this.position_y;
 
-    if(pos_x == null || pos_y == null){
-      pos_x = x + (width/2);
-      pos_y = y + (height/2);
+    if (pos_x == null || pos_y == null) {
+      pos_x = x + width / 2;
+      pos_y = y + height / 2;
     }
 
     // previous device cursor was on this display, just use it
-    if(prev && this.contains(prev.position_x, prev.position_y)){
+    if (prev && this.contains(prev.position_x, prev.position_y)) {
       pos_x = prev.position_x;
-      pos_y = prev.position_y
+      pos_y = prev.position_y;
     }
 
     // this device cursor was on a different screen, use center
-    else if(!this.contains(pos_x, pos_y)){
-      pos_x = x + (width/2);
-      pos_y = y + (height/2);
+    else if (!this.contains(pos_x, pos_y)) {
+      pos_x = x + width / 2;
+      pos_y = y + height / 2;
     }
 
-    moveMouse(pos_x, pos_y)
+    moveMouse(pos_x, pos_y);
     this.activated = true;
     return this.device.disconnect();
   }
@@ -120,7 +119,7 @@ export class RobotEngine {
       }
       const display = this.options.displayEngine.getDisplay(config[key].display);
       if (!display || !device) {
-        config;
+        continue;
       }
       let assignment = new Assignment(device, display);
       const listener = assignment.registerListener({

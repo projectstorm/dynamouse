@@ -23,6 +23,7 @@ app.on("ready", () => {
     }),
   );
 
+  app.dock.hide();
 
   const setupMovement = () => {
     return robotEngine.setupAssignments(configEngine.config);
@@ -67,6 +68,16 @@ app.on("ready", () => {
       const deviceMenuItem = new MenuItem({ label: device.product, submenu: submenu });
       menu.append(deviceMenuItem);
     });
+    menu.append(new MenuItem({ type: "separator" }));
+    menu.append(
+      new MenuItem({
+        label: "Quit",
+        click: () => {
+          app.exit(0);
+        },
+      }),
+    );
+
     return menu;
   };
 
@@ -75,7 +86,4 @@ app.on("ready", () => {
   displayEngine.init();
   tray.setContextMenu(buildMenu());
   setupMovement();
-
-
-
 });

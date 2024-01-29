@@ -1,4 +1,5 @@
 node_modules
 dist
+dist_electron
 .idea
 .DS_Store

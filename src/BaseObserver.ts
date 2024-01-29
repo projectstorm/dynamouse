@@ -6,7 +6,6 @@ export interface BaseObserverInterface<T> {
   iterateListeners(cb: (listener: Partial<T>) => any);
 }
 
-
 export class BaseObserver<T> implements BaseObserverInterface<T> {
   protected listeners: { [id: string]: Partial<T> };
 

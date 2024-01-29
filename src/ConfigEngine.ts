@@ -15,9 +15,9 @@ export class ConfigEngine {
     this.config = {};
   }
 
-  async init() {
-   const config = storage.getSync(ConfigEngine.KEY) as Config | null;
-   this.config = config || {};
+  init() {
+    const config = storage.getSync(ConfigEngine.KEY) as Config | null;
+    this.config = config || {};
   }
 
   update(config: Config) {

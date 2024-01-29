@@ -1,4 +1,4 @@
-import {Device, devices, HID, HIDAsync} from "node-hid";
+import { Device, devices, HID, HIDAsync } from "node-hid";
 import { BaseObserver } from "./BaseObserver";
 import * as _ from "lodash";
 
@@ -14,7 +14,7 @@ export class PointerDevice extends BaseObserver<PointerDeviceListener> {
   }
 
   async connect() {
-    console.log("Connecting HID", this.product)
+    console.log("Connecting HID", this.product);
     this.resource = new HID(this.device.path);
     this.resource.on("data", () => {
       this.fire();
@@ -22,11 +22,11 @@ export class PointerDevice extends BaseObserver<PointerDeviceListener> {
   }
 
   fire() {
-    this.iterateListeners(cb => cb.moved?.());
+    this.iterateListeners((cb) => cb.moved?.());
   }
 
   async disconnect() {
-    if(!this.resource){
+    if (!this.resource) {
       return;
     }
     console.log("Disconnecting HID: ", this.product);
@@ -38,7 +38,6 @@ export class PointerDevice extends BaseObserver<PointerDeviceListener> {
     return this.device.product;
   }
 }
-
 
 export class PointerEngine {
   _devices: Map<string, PointerDevice>;

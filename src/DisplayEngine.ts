@@ -2,12 +2,11 @@ import { screen } from "electron";
 import { BaseObserver } from "./BaseObserver";
 import Display = Electron.Display;
 
-export interface DisplayListener  {
+export interface DisplayListener {
   displaysChanged: (displays: Display[]) => any;
 }
 
 export class DisplayEngine extends BaseObserver<DisplayListener> {
-
   displays: Display[];
   constructor() {
     super();
@@ -29,7 +28,7 @@ export class DisplayEngine extends BaseObserver<DisplayListener> {
     this.recompute();
   }
 
-  getDisplay(name: string){
-    return this.displays.find(d => d.label === name);
+  getDisplay(name: string) {
+    return this.displays.find((d) => d.label === name);
   }
 }

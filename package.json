@@ -1,12 +1,36 @@
 {
   "name": "@projectstorm/dynamouse",
   "license": "MIT",
+  "main": "dist/main.js",
+  "description": "Mouse and Display assignment for mac",
+  "version": "0.0.1",
+  "author": {
+    "name": "Dylan Vorster",
+    "url": "dylanvorster.com"
+  },
   "scripts": {
     "start": "electron .",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx}\"",
-    "watch": "tsc --watch"
+    "watch": "tsc --watch",
+    "app:dir": "electron-builder --dir",
+    "app:dist": "electron-builder",
+    "prepare": "rm -rf node_modules/electron/dist && node node_modules/electron/install.js"
   },
-  "main": "dist/main.js",
+  "build": {
+    "directories": {
+      "output": "dist_electron"
+    },
+    "files": [
+      "media/*",
+      "dist/*"
+    ],
+    "productName": "DynaMouse",
+    "appId": "projectstorm.dynamouse",
+    "mac": {
+      "icon": "./media/icon.png",
+      "category": "public.app-category.utilities"
+    }
+  },
   "dependencies": {
     "uuid": "^9.0.1",
     "node-hid": "^3.0.0",
@@ -20,6 +44,7 @@
     "@types/uuid": "^9.0.8",
     "@types/node": "^20.11.10",
     "electron": "^28.2.0",
+    "electron-builder": "^24.9.1",
     "typescript": "^5.3.3",
     "prettier": "^3.2.4",
     "@types/lodash": "^4.14.202"
