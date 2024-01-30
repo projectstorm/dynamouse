@@ -13,11 +13,10 @@ Behold:
 
 ![](screenshots/screenshot.png)
 
-When you first start DynaMouse and start configuring it, you will be asked to enable a few settings in System Preferences so that Dynamouse can:
+When you first start DynaMouse and start configuring it, you will be asked to enable a few settings in System Preferences so that DynaMouse can:
 
-* Access HID devices
-* Control the mouse position
-* Get current displays
+* Input monitoring (Access HID devices)
+* Accessibility (Control the mouse position)
 
 ## Features
 
