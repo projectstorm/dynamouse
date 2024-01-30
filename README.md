@@ -2,7 +2,7 @@
 
 ![](./media/icon-mac.png)
 
-## Into
+## Intro
 
 Finally, a system for Mac that allows you to have multiple mice, multiple monitors and assign each to one another. 
 While Mac allows for multiple mice plugged-in at the same time, it doesn't allow multiple _cursors_ at the same time. 
