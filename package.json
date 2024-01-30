@@ -38,9 +38,11 @@
     "electron-json-storage": "^4.6.0",
     "usb": "^2.11.0",
     "lodash": "^4.17.21",
-    "@jitsi/robotjs": "^0.6.13"
+    "@jitsi/robotjs": "^0.6.13",
+    "auto-launch": "^5.0.6"
   },
   "devDependencies": {
+    "@types/auto-launch": "^5.0.5",
     "@types/electron-json-storage": "^4.5.4",
     "@types/uuid": "^9.0.8",
     "@types/node": "^20.11.10",

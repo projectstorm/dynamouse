@@ -46,6 +46,14 @@ export class PointerEngine {
     this._devices = new Map();
   }
 
+  async dispose() {
+    await Promise.all(
+      this.getDevices().map((d) => {
+        return d.disconnect();
+      }),
+    );
+  }
+
   init() {
     devices()
       .filter((d) => d.usage === 2)

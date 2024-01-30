@@ -4,6 +4,11 @@ import { DisplayEngine } from "./DisplayEngine";
 import { PointerDevice, PointerEngine } from "./PointerEngine";
 import { ConfigEngine } from "./ConfigEngine";
 import { RobotEngine } from "./RobotEngine";
+import AutoLaunch from "auto-launch";
+
+const autolauncher = new AutoLaunch({
+  name: "DynaMouse",
+});
 
 const icon_mac = nativeImage.createFromPath(path.join(__dirname, "../media/icon-mac.png"));
 
@@ -33,11 +38,13 @@ app.on("ready", () => {
     configEngine.update({
       [device.product]: { display: display_id },
     });
-    tray.setContextMenu(buildMenu());
+    buildMenu();
     setupMovement();
   };
 
-  const buildMenu = () => {
+  const buildMenu = async () => {
+    const autoLaunchEnabled = await autolauncher.isEnabled();
+
     const menu = new Menu();
     pointerEngine.getDevices().forEach((device) => {
       const submenu = new Menu();
@@ -71,12 +78,32 @@ app.on("ready", () => {
     menu.append(new MenuItem({ type: "separator" }));
     menu.append(
       new MenuItem({
+        label: "Launch on startup",
+        type: "checkbox",
+        checked: autoLaunchEnabled,
+        click: async () => {
+          if (autoLaunchEnabled) {
+            await autolauncher.disable();
+          } else {
+            await autolauncher.enable();
+          }
+          setTimeout(() => {
+            buildMenu();
+          }, 100);
+        },
+      }),
+    );
+    menu.append(
+      new MenuItem({
         label: "Quit",
-        click: () => {
+        click: async () => {
+          await pointerEngine.dispose();
           app.exit(0);
         },
       }),
     );
+
+    tray.setContextMenu(menu);
 
     return menu;
   };
@@ -84,6 +111,6 @@ app.on("ready", () => {
   configEngine.init();
   pointerEngine.init();
   displayEngine.init();
-  tray.setContextMenu(buildMenu());
+  buildMenu();
   setupMovement();
 });
