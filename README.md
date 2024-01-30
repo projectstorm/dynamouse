@@ -11,7 +11,7 @@ DynaMouse allows you to assign a specific display to a dedicated mouse device (i
 
 Behold:
 
-![](./screenshot.png)
+![](screenshots/screenshot.png)
 
 When you first start DynaMouse and start configuring it, you will be asked to enable a few settings in System Preferences so that Dynamouse can:
 
@@ -37,6 +37,19 @@ The devices below have been tested and work:
 * Corsair HARPOON Wireless RGB Gaming Mouse
 * Apple magic trackpad (‎MMMP3AM/A)
 * M1 Macbook trackpad
+
+## Updating
+
+If you are updating to a newer version, you will need to first completely remove the assigned permissions in System Preferences
+by pressing the minus button for both 'Input Monitoring' and 'Accessibility'. The reason for this is because the MacOS sandboxing system
+sees the new version as having different code signature (hash) and throws the error:
+
+`Failed to match existing code requirement for subject projectstorm.dynamouse and service kTCCServiceListenEvent`
+
+I would appreciate some help on fixing this :)
+
+![](screenshots/faq1.png)
+![](screenshots/faq2.png)
 
 ## Development
 
