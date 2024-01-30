@@ -3,7 +3,7 @@
   "license": "MIT",
   "main": "dist/main.js",
   "description": "Mouse and Display assignment for mac",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "author": {
     "name": "Dylan Vorster",
     "url": "dylanvorster.com"
