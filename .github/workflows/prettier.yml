@@ -20,4 +20,4 @@ jobs:
       - uses: actionsx/prettier@v2
         with:
           # prettier CLI arguments.
-          args: --check --ignore-path .prettierignore --config .prettierrc '**/*.{ts,tsx,js,jsx}'
+          args: --check --config .prettierrc 'src/**/*.{ts,tsx}'

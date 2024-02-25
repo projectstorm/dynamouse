@@ -12,7 +12,7 @@
     "build": "tsc",
     "watch": "tsc --watch",
     "start": "electron .",
-    "format": "prettier --write \"**/*.{ts,tsx,js,jsx}\"",
+    "format": "prettier --config .prettierrc --write \"src/**/*.{ts,tsx}\"",
     "app:dir": "electron-builder --dir",
     "app:dist": "electron-builder",
     "prepare": "rm -rf node_modules/electron/dist && node node_modules/electron/install.js"
