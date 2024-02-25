@@ -1,3 +1,4 @@
+require("source-map-support").install();
 import { app, Menu, MenuItem, nativeImage, Tray } from "electron";
 import * as path from "path";
 import { DisplayEngine } from "./DisplayEngine";
@@ -5,6 +6,7 @@ import { PointerDevice, PointerEngine } from "./PointerEngine";
 import { ConfigEngine } from "./ConfigEngine";
 import { RobotEngine } from "./RobotEngine";
 import AutoLaunch from "auto-launch";
+import { createLogger, transports } from "winston";
 
 const autolauncher = new AutoLaunch({
   name: "DynaMouse",
@@ -12,8 +14,11 @@ const autolauncher = new AutoLaunch({
 
 const icon_mac = nativeImage.createFromPath(path.join(__dirname, "../media/icon-mac.png"));
 
+const logger = createLogger();
+logger.add(new transports.Console());
+
 const displayEngine = new DisplayEngine();
-const pointerEngine = new PointerEngine();
+const pointerEngine = new PointerEngine({ logger: logger });
 const configEngine = new ConfigEngine();
 const robotEngine = new RobotEngine({
   displayEngine,
@@ -36,7 +41,10 @@ app.on("ready", () => {
 
   const assignDisplayToDevice = (display_id: string, device: PointerDevice) => {
     configEngine.update({
-      [device.product]: { display: display_id },
+      devices: {
+        ...configEngine.config.devices,
+        [device.product]: { display: display_id },
+      },
     });
     buildMenu();
     setupMovement();
@@ -53,7 +61,7 @@ app.on("ready", () => {
           new MenuItem({
             label: display.label,
             type: "radio",
-            checked: configEngine.config[device.product]?.display === display.label,
+            checked: configEngine.config.devices?.[device.product]?.display === display.label,
             click: () => {
               assignDisplayToDevice(display.label, device);
             },
@@ -65,7 +73,7 @@ app.on("ready", () => {
         new MenuItem({
           type: "radio",
           label: "None (uncontrolled)",
-          checked: configEngine.config[device.product]?.display == null,
+          checked: configEngine.config.devices?.[device.product]?.display == null,
           click: () => {
             assignDisplayToDevice(null, device);
           },
@@ -111,6 +119,14 @@ app.on("ready", () => {
   configEngine.init();
   pointerEngine.init();
   displayEngine.init();
+
+  pointerEngine.registerListener({
+    devicesChanged: () => {
+      buildMenu();
+      setupMovement();
+    },
+  });
+
   buildMenu();
   setupMovement();
 });

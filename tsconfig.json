@@ -1,6 +1,7 @@
 {
   "compileOnSave": false,
   "compilerOptions": {
+    "inlineSourceMap": true,
     "outDir": "dist",
     "rootDir": "src",
     "baseUrl": ".",

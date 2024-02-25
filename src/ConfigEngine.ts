@@ -1,23 +1,32 @@
 import * as storage from "electron-json-storage";
 
 export interface Config {
-  [key: string]: {
-    display: string;
+  devices: {
+    [key: string]: {
+      display: string;
+    };
   };
 }
 
 export class ConfigEngine {
+  static VERSION = 2;
   static KEY = "displaypaws";
 
   config: Config;
 
   constructor() {
-    this.config = {};
+    this.config = { devices: {} };
   }
 
   init() {
-    const config = storage.getSync(ConfigEngine.KEY) as Config | null;
-    this.config = config || {};
+    const config = storage.getSync(this.saveKey) as Config | null;
+    if (config) {
+      this.config = config;
+    }
+  }
+
+  private get saveKey() {
+    return `${ConfigEngine.KEY}-${ConfigEngine.VERSION}`;
   }
 
   update(config: Config) {
@@ -25,7 +34,7 @@ export class ConfigEngine {
       ...this.config,
       ...config,
     };
-    storage.set(ConfigEngine.KEY, this.config, (err) => {
+    storage.set(this.saveKey, this.config, (err) => {
       if (err) {
         console.error("failed to store settings", err);
       }

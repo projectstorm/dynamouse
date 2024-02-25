@@ -112,12 +112,12 @@ export class RobotEngine {
   async setupAssignments(config: Config) {
     await Promise.all(this.assignments.map((a) => a.dispose()));
     this.assignments = [];
-    for (let key in config) {
+    for (let key in config.devices) {
       const device = this.options.pointerEngine.getDevice(key);
-      if (!config[key].display) {
+      if (!config.devices[key].display) {
         continue;
       }
-      const display = this.options.displayEngine.getDisplay(config[key].display);
+      const display = this.options.displayEngine.getDisplay(config.devices[key].display);
       if (!display || !device) {
         continue;
       }
