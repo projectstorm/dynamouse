@@ -10,7 +10,7 @@ export interface Config {
 
 export class ConfigEngine {
   static VERSION = 2;
-  static KEY = 'displaypaws';
+  static KEY = 'dynamouse';
 
   config: Config;
 
