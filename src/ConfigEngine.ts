@@ -1,4 +1,4 @@
-import * as storage from "electron-json-storage";
+import * as storage from 'electron-json-storage';
 
 export interface Config {
   devices: {
@@ -10,7 +10,7 @@ export interface Config {
 
 export class ConfigEngine {
   static VERSION = 2;
-  static KEY = "displaypaws";
+  static KEY = 'displaypaws';
 
   config: Config;
 
@@ -32,11 +32,11 @@ export class ConfigEngine {
   update(config: Config) {
     this.config = {
       ...this.config,
-      ...config,
+      ...config
     };
     storage.set(this.saveKey, this.config, (err) => {
       if (err) {
-        console.error("failed to store settings", err);
+        console.error('failed to store settings', err);
       }
     });
   }

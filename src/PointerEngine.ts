@@ -1,8 +1,8 @@
-import { Device, devices, HID } from "node-hid";
-import { BaseObserver } from "./BaseObserver";
-import { usb } from "usb";
-import * as _ from "lodash";
-import { Logger } from "winston";
+import { Device, devices, HID } from 'node-hid';
+import { BaseObserver } from './BaseObserver';
+import { usb } from 'usb';
+import * as _ from 'lodash';
+import { Logger } from 'winston';
 
 export interface PointerDeviceListener {
   moved: () => any;
@@ -34,17 +34,17 @@ export class PointerDevice extends BaseObserver<PointerDeviceListener> {
     const error_cb = () => {
       // do nothing for now
     };
-    this.resource.on("error", error_cb);
-    this.resource.on("data", data_cb);
+    this.resource.on('error', error_cb);
+    this.resource.on('data', data_cb);
     this.dispose = () => {
-      this.resource.off("error", error_cb);
-      this.resource.off("data", data_cb);
+      this.resource.off('error', error_cb);
+      this.resource.off('data', data_cb);
       this.dispose = null;
     };
   }
 
   async detach() {
-    this.logger.info("Detaching");
+    this.logger.info('Detaching');
     this.dispose?.();
     if (this.resource) {
       await this.disconnect();
@@ -56,7 +56,7 @@ export class PointerDevice extends BaseObserver<PointerDeviceListener> {
     if (!this.resource) {
       return;
     }
-    this.logger.info("Disconnecting");
+    this.logger.info('Disconnecting');
     try {
       this.resource.close();
     } catch (ex) {}
@@ -91,19 +91,19 @@ export class PointerEngine extends BaseObserver<PointerEngineListener> {
   constructor(protected options: PointerEngineOptions) {
     super();
     this._devices = new Set();
-    this.logger = options.logger.child({ namespace: "POINTERS" });
+    this.logger = options.logger.child({ namespace: 'POINTERS' });
   }
 
   async dispose() {
     await Promise.all(
       this.getDevices().map((d) => {
         return d.disconnect();
-      }),
+      })
     );
   }
 
   refreshDeviceList() {
-    this.logger.info("Refreshing device list");
+    this.logger.info('Refreshing device list');
     let pointerDevices = _.chain(devices())
       .filter((d) => d.usage === 2)
       .uniqBy((u) => u.serialNumber)
@@ -125,14 +125,14 @@ export class PointerEngine extends BaseObserver<PointerEngineListener> {
     _.differenceBy(pointerDevices, this.getDevices(), snMapper).forEach((d) => {
       const device = new PointerDevice({
         device: d,
-        logger: this.logger,
+        logger: this.logger
       });
       const l1 = device.registerListener({
         detached: () => {
           l1();
           this._devices.delete(device);
           this.iterateListeners((cb) => cb.devicesChanged?.());
-        },
+        }
       });
       this._devices.add(device);
       this.iterateListeners((cb) => cb.devicesChanged?.());
@@ -140,13 +140,13 @@ export class PointerEngine extends BaseObserver<PointerEngineListener> {
   }
 
   init() {
-    usb.on("attach", () => {
-      this.logger.info("Device attached");
+    usb.on('attach', () => {
+      this.logger.info('Device attached');
       this.refreshDeviceList();
     });
 
-    usb.on("detach", () => {
-      this.logger.info("Device detached");
+    usb.on('detach', () => {
+      this.logger.info('Device detached');
       this.refreshDeviceList();
     });
     this.refreshDeviceList();

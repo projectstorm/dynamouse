@@ -1,18 +1,18 @@
-require("source-map-support").install();
-import { app, Menu, MenuItem, nativeImage, Tray } from "electron";
-import * as path from "path";
-import { DisplayEngine } from "./DisplayEngine";
-import { PointerDevice, PointerEngine } from "./PointerEngine";
-import { ConfigEngine } from "./ConfigEngine";
-import { RobotEngine } from "./RobotEngine";
-import AutoLaunch from "auto-launch";
-import { createLogger, transports } from "winston";
+require('source-map-support').install();
+import { app, Menu, MenuItem, nativeImage, Tray } from 'electron';
+import * as path from 'path';
+import { DisplayEngine } from './DisplayEngine';
+import { PointerDevice, PointerEngine } from './PointerEngine';
+import { ConfigEngine } from './ConfigEngine';
+import { RobotEngine } from './RobotEngine';
+import AutoLaunch from 'auto-launch';
+import { createLogger, transports } from 'winston';
 
 const autolauncher = new AutoLaunch({
-  name: "DynaMouse",
+  name: 'DynaMouse'
 });
 
-const icon_mac = nativeImage.createFromPath(path.join(__dirname, "../media/icon-mac.png"));
+const icon_mac = nativeImage.createFromPath(path.join(__dirname, '../media/icon-mac.png'));
 
 const logger = createLogger();
 logger.add(new transports.Console());
@@ -22,15 +22,15 @@ const pointerEngine = new PointerEngine({ logger: logger });
 const configEngine = new ConfigEngine();
 const robotEngine = new RobotEngine({
   displayEngine,
-  pointerEngine,
+  pointerEngine
 });
 
-app.on("ready", () => {
+app.on('ready', () => {
   const tray = new Tray(
     icon_mac.resize({
       width: 16,
-      height: 16,
-    }),
+      height: 16
+    })
   );
 
   app.dock.hide();
@@ -43,8 +43,8 @@ app.on("ready", () => {
     configEngine.update({
       devices: {
         ...configEngine.config.devices,
-        [device.product]: { display: display_id },
-      },
+        [device.product]: { display: display_id }
+      }
     });
     buildMenu();
     setupMovement();
@@ -60,34 +60,34 @@ app.on("ready", () => {
         submenu.append(
           new MenuItem({
             label: display.label,
-            type: "radio",
+            type: 'radio',
             checked: configEngine.config.devices?.[device.product]?.display === display.label,
             click: () => {
               assignDisplayToDevice(display.label, device);
-            },
-          }),
+            }
+          })
         );
       });
-      submenu.append(new MenuItem({ type: "separator" }));
+      submenu.append(new MenuItem({ type: 'separator' }));
       submenu.append(
         new MenuItem({
-          type: "radio",
-          label: "None (uncontrolled)",
+          type: 'radio',
+          label: 'None (uncontrolled)',
           checked: configEngine.config.devices?.[device.product]?.display == null,
           click: () => {
             assignDisplayToDevice(null, device);
-          },
-        }),
+          }
+        })
       );
 
       const deviceMenuItem = new MenuItem({ label: device.product, submenu: submenu });
       menu.append(deviceMenuItem);
     });
-    menu.append(new MenuItem({ type: "separator" }));
+    menu.append(new MenuItem({ type: 'separator' }));
     menu.append(
       new MenuItem({
-        label: "Launch on startup",
-        type: "checkbox",
+        label: 'Launch on startup',
+        type: 'checkbox',
         checked: autoLaunchEnabled,
         click: async () => {
           if (autoLaunchEnabled) {
@@ -98,17 +98,17 @@ app.on("ready", () => {
           setTimeout(() => {
             buildMenu();
           }, 100);
-        },
-      }),
+        }
+      })
     );
     menu.append(
       new MenuItem({
-        label: "Quit",
+        label: 'Quit',
         click: async () => {
           await pointerEngine.dispose();
           app.exit(0);
-        },
-      }),
+        }
+      })
     );
 
     tray.setContextMenu(menu);
@@ -124,7 +124,7 @@ app.on("ready", () => {
     devicesChanged: () => {
       buildMenu();
       setupMovement();
-    },
+    }
   });
 
   buildMenu();
