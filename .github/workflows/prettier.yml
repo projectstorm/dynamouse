@@ -21,4 +21,4 @@ jobs:
         with:
           # prettier CLI arguments.
           dry: true
-          prettier_options: --config .prettierrc 'src/**/*.{ts,tsx}'
+          prettier_options: --check --config .prettierrc 'src/**/*.{ts,tsx}'
