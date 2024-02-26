@@ -8,6 +8,7 @@ import AutoLaunch from 'auto-launch';
 import { createLogger, transports } from 'winston';
 import { buildLoadingMenu, buildMenu } from './menu';
 import { waitForAllPermissions } from './permissions';
+import {} from 'async';
 
 require('source-map-support').install();
 
@@ -69,12 +70,7 @@ app.on('ready', async () => {
     setupMovement();
   };
 
-  pointerEngine.registerListener({
-    devicesChanged: () => {
-      buildMenuWrapped();
-      setupMovement();
-    }
-  });
+  configEngine.init();
 
   // add a startup delay
   const delay = (configEngine.config.startupDelay || 0) * 1_000;
@@ -85,9 +81,15 @@ app.on('ready', async () => {
 
   // might want startup delay
   setTimeout(() => {
-    configEngine.init();
     pointerEngine.init();
     displayEngine.init();
+
+    pointerEngine.registerListener({
+      devicesChanged: () => {
+        buildMenuWrapped();
+        setupMovement();
+      }
+    });
 
     buildMenuWrapped();
     setupMovement();

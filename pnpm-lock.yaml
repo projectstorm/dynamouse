@@ -8,6 +8,9 @@ dependencies:
   '@jitsi/robotjs':
     specifier: ^0.6.13
     version: 0.6.13
+  async:
+    specifier: ^3.2.5
+    version: 3.2.5
   auto-launch:
     specifier: ^5.0.6
     version: 5.0.6
@@ -37,6 +40,9 @@ dependencies:
     version: 3.11.0
 
 devDependencies:
+  '@types/async':
+    specifier: ^3.2.24
+    version: 3.2.24
   '@types/auto-launch':
     specifier: ^5.0.5
     version: 5.0.5
@@ -224,6 +230,10 @@ packages:
   /@tootallnate/once@2.0.0:
     resolution: {integrity: sha512-XCuKFP5PS55gnMVu3dty8KPatLqUoy/ZYzDzAGCQ8JNFCkLXzmI7vNHCR+XpbZaMWQK/vQubr7PkYq8g470J/A==}
     engines: {node: '>= 10'}
+    dev: true
+
+  /@types/async@3.2.24:
+    resolution: {integrity: sha512-8iHVLHsCCOBKjCF2KwFe0p9Z3rfM9mL+sSP8btyR5vTjJRAqpBYD28/ZLgXPf0pjG1VxOvtCV/BgXkQbpSe8Hw==}
     dev: true
 
   /@types/auto-launch@5.0.5:

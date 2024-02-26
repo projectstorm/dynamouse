@@ -37,8 +37,8 @@ export class PointerDevice extends BaseObserver<PointerDeviceListener> {
     this.resource.on('error', error_cb);
     this.resource.on('data', data_cb);
     this.dispose = () => {
-      this.resource.off('error', error_cb);
-      this.resource.off('data', data_cb);
+      this.resource?.off('error', error_cb);
+      this.resource?.off('data', data_cb);
       this.dispose = null;
     };
   }

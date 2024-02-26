@@ -35,6 +35,7 @@
   "dependencies": {
     "@jitsi/robotjs": "^0.6.13",
     "auto-launch": "^5.0.6",
+    "async": "^3.2.5",
     "electron-json-storage": "^4.6.0",
     "lodash": "^4.17.21",
     "node-hid": "^3.0.0",
@@ -45,6 +46,7 @@
     "node-mac-permissions": "^2.3.0"
   },
   "devDependencies": {
+    "@types/async": "^3.2.24",
     "@types/auto-launch": "^5.0.5",
     "@types/electron-json-storage": "^4.5.4",
     "@types/lodash": "^4.14.202",
