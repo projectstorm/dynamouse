@@ -8,7 +8,6 @@ import AutoLaunch from 'auto-launch';
 import { createLogger, transports } from 'winston';
 import { buildLoadingMenu, buildMenu } from './menu';
 import { waitForAllPermissions } from './permissions';
-import * as process from 'node:process';
 
 require('source-map-support').install();
 
