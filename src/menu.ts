@@ -74,7 +74,7 @@ export const buildMenu = async (options: BuildMenuOptions) => {
   startupMenu.append(
     new MenuItem({
       label: 'Enabled',
-      type:'checkbox',
+      type: 'checkbox',
       checked: autoLaunchEnabled,
       click: async () => {
         if (autoLaunchEnabled) {
