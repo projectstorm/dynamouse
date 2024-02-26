@@ -35,12 +35,13 @@
   "dependencies": {
     "@jitsi/robotjs": "^0.6.13",
     "auto-launch": "^5.0.6",
-    "winston": "^3.11.0",
     "electron-json-storage": "^4.6.0",
     "lodash": "^4.17.21",
     "node-hid": "^3.0.0",
+    "source-map-support": "^0.5.21",
     "usb": "^2.11.0",
-    "uuid": "^9.0.1"
+    "uuid": "^9.0.1",
+    "winston": "^3.11.0"
   },
   "devDependencies": {
     "@types/auto-launch": "^5.0.5",
@@ -48,7 +49,6 @@
     "@types/lodash": "^4.14.202",
     "@types/node": "^20.11.10",
     "@types/uuid": "^9.0.8",
-    "source-map-support": "^0.5.21",
     "electron": "^28.2.0",
     "electron-builder": "^24.9.1",
     "prettier": "^3.2.4",
