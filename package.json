@@ -41,7 +41,8 @@
     "source-map-support": "^0.5.21",
     "usb": "^2.11.0",
     "uuid": "^9.0.1",
-    "winston": "^3.11.0"
+    "winston": "^3.11.0",
+    "node-mac-permissions": "^2.3.0"
   },
   "devDependencies": {
     "@types/auto-launch": "^5.0.5",

@@ -6,6 +6,7 @@ export interface Config {
       display: string;
     };
   };
+  startupDelay: number;
 }
 
 export class ConfigEngine {
@@ -15,7 +16,7 @@ export class ConfigEngine {
   config: Config;
 
   constructor() {
-    this.config = { devices: {} };
+    this.config = { devices: {}, startupDelay: 0 };
   }
 
   init() {
@@ -29,7 +30,7 @@ export class ConfigEngine {
     return `${ConfigEngine.KEY}-${ConfigEngine.VERSION}`;
   }
 
-  update(config: Config) {
+  update(config: Partial<Config>) {
     this.config = {
       ...this.config,
       ...config
