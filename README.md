@@ -11,12 +11,10 @@ DynaMouse allows you to assign a specific display to a dedicated mouse device (i
 
 Behold:
 
-![](screenshots/screenshot.png)
+![](screenshots/screenshot1.png)
+![](screenshots/screenshot2.png)
 
-When you first start DynaMouse and start configuring it, you will be asked to enable a few settings in System Preferences so that DynaMouse can:
-
-* Input monitoring (Access HID devices)
-* Accessibility (Control the mouse position)
+When you first start DynaMouse and start configuring it, you will be asked to enable Accessibility permissions in System Preferences so that DynaMouse can monitor usb pointer devices and also control the mouse position on the screen. Dynamouse will wait for these permissions to be enabled before continuing to boot up :)
 
 ## Features
 
@@ -28,6 +26,7 @@ When you first start DynaMouse and start configuring it, you will be asked to en
 * Non-obtrusive: doesn't lock the mouse to screen bounds, i.e. you can still drag a mouse to a different screen.
 * Can be configured to launch on login.
 * Can handle usb devices being attached / detached
+* Specify a startup delay (useful when various devices are busy booting up after login)
 
 ## Devices tested
 
