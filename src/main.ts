@@ -31,7 +31,7 @@ const robotEngine = new RobotEngine({
 const wasOpenedAtLogin = () => {
   try {
     let loginSettings = app.getLoginItemSettings();
-    return loginSettings.wasOpenedAtLogin;
+    return loginSettings.openAtLogin;
   } catch {
     return false;
   }
