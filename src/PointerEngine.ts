@@ -1,37 +1,74 @@
-import { Device, devices, HID, HIDAsync } from "node-hid";
-import { BaseObserver } from "./BaseObserver";
-import * as _ from "lodash";
+import { Device, devices, HID } from 'node-hid';
+import { BaseObserver } from './BaseObserver';
+import { usb } from 'usb';
+import * as _ from 'lodash';
+import { Logger } from 'winston';
 
 export interface PointerDeviceListener {
   moved: () => any;
+  detached: () => any;
+}
+
+export interface PointerDeviceOptions {
+  device: Device;
+  logger: Logger;
 }
 
 export class PointerDevice extends BaseObserver<PointerDeviceListener> {
   resource: HID;
+  logger: Logger;
+  private dispose: () => any;
 
-  constructor(public device: Device) {
+  constructor(protected options: PointerDeviceOptions) {
     super();
+    this.logger = options.logger.child({ namespace: options.device.product });
   }
 
   async connect() {
-    console.log("Connecting HID", this.product);
+    this.logger.info(`Connecting`);
     this.resource = new HID(this.device.path);
-    this.resource.on("data", () => {
-      this.fire();
-    });
+
+    const data_cb = () => {
+      this.iterateListeners((cb) => cb.moved?.());
+    };
+    const error_cb = () => {
+      // do nothing for now
+    };
+    this.resource.on('error', error_cb);
+    this.resource.on('data', data_cb);
+    this.dispose = () => {
+      this.resource?.off('error', error_cb);
+      this.resource?.off('data', data_cb);
+      this.dispose = null;
+    };
   }
 
-  fire() {
-    this.iterateListeners((cb) => cb.moved?.());
+  async detach() {
+    this.logger.info('Detaching');
+    this.dispose?.();
+    if (this.resource) {
+      await this.disconnect();
+    }
+    this.iterateListeners((cb) => cb.detached?.());
   }
 
   async disconnect() {
     if (!this.resource) {
       return;
     }
-    console.log("Disconnecting HID: ", this.product);
-    this.resource?.close();
+    this.logger.info('Disconnecting');
+    try {
+      this.resource.close();
+    } catch (ex) {}
     this.resource = null;
+  }
+
+  get device() {
+    return this.options.device;
+  }
+
+  get sn() {
+    return this.device.serialNumber;
   }
 
   get product() {
@@ -39,29 +76,80 @@ export class PointerDevice extends BaseObserver<PointerDeviceListener> {
   }
 }
 
-export class PointerEngine {
-  _devices: Map<string, PointerDevice>;
+export interface PointerEngineListener {
+  devicesChanged: () => any;
+}
 
-  constructor() {
-    this._devices = new Map();
+export interface PointerEngineOptions {
+  logger: Logger;
+}
+
+export class PointerEngine extends BaseObserver<PointerEngineListener> {
+  _devices: Set<PointerDevice>;
+  logger: Logger;
+
+  constructor(protected options: PointerEngineOptions) {
+    super();
+    this._devices = new Set();
+    this.logger = options.logger.child({ namespace: 'POINTERS' });
   }
 
   async dispose() {
     await Promise.all(
       this.getDevices().map((d) => {
         return d.disconnect();
-      }),
+      })
     );
   }
 
-  init() {
-    devices()
+  refreshDeviceList() {
+    this.logger.info('Refreshing device list');
+    let pointerDevices = _.chain(devices())
       .filter((d) => d.usage === 2)
-      .forEach((d) => {
-        if (!this._devices.has(d.product)) {
-          this._devices.set(d.product, new PointerDevice(d));
+      .uniqBy((u) => u.serialNumber)
+      .value();
+
+    const snMapper = (a: PointerDevice | Device) => {
+      if (a instanceof PointerDevice) {
+        return a.sn;
+      }
+      return (a as Device).serialNumber;
+    };
+
+    // devices to remove
+    _.differenceBy(this.getDevices(), pointerDevices, snMapper).forEach((d) => {
+      d.detach();
+    });
+
+    // devices to add
+    _.differenceBy(pointerDevices, this.getDevices(), snMapper).forEach((d) => {
+      const device = new PointerDevice({
+        device: d,
+        logger: this.logger
+      });
+      const l1 = device.registerListener({
+        detached: () => {
+          l1();
+          this._devices.delete(device);
+          this.iterateListeners((cb) => cb.devicesChanged?.());
         }
       });
+      this._devices.add(device);
+      this.iterateListeners((cb) => cb.devicesChanged?.());
+    });
+  }
+
+  init() {
+    usb.on('attach', () => {
+      this.logger.info('Device attached');
+      this.refreshDeviceList();
+    });
+
+    usb.on('detach', () => {
+      this.logger.info('Device detached');
+      this.refreshDeviceList();
+    });
+    this.refreshDeviceList();
   }
 
   getDevices() {
@@ -70,5 +158,9 @@ export class PointerEngine {
 
   getDevice(name: string) {
     return this.getDevices().find((d) => d.product === name);
+  }
+
+  getDeviceFromSN(sn: string) {
+    return this.getDevices().find((d) => d.sn === sn);
   }
 }

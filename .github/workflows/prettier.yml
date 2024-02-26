@@ -17,7 +17,8 @@ jobs:
 
 
       - uses: actions/checkout@v2 # Check out the repository first.
-      - uses: actionsx/prettier@v2
+      - uses: creyD/prettier_action@v4.3
         with:
           # prettier CLI arguments.
-          args: --check --ignore-path .prettierignore --config .prettierrc '**/*.{ts,tsx,js,jsx}'
+          dry: true
+          prettier_options: --check --config .prettierrc 'src/**/*.{ts,tsx}'

@@ -1,116 +1,97 @@
-import { app, Menu, MenuItem, nativeImage, Tray } from "electron";
-import * as path from "path";
-import { DisplayEngine } from "./DisplayEngine";
-import { PointerDevice, PointerEngine } from "./PointerEngine";
-import { ConfigEngine } from "./ConfigEngine";
-import { RobotEngine } from "./RobotEngine";
-import AutoLaunch from "auto-launch";
+import { app, nativeImage, Tray } from 'electron';
+import * as path from 'path';
+import { DisplayEngine } from './DisplayEngine';
+import { PointerDevice, PointerEngine } from './PointerEngine';
+import { ConfigEngine } from './ConfigEngine';
+import { RobotEngine } from './RobotEngine';
+import AutoLaunch from 'auto-launch';
+import { createLogger, transports } from 'winston';
+import { buildLoadingMenu, buildMenu } from './menu';
+import { waitForAllPermissions } from './permissions';
+import {} from 'async';
+
+require('source-map-support').install();
 
 const autolauncher = new AutoLaunch({
-  name: "DynaMouse",
+  name: 'DynaMouse'
 });
 
-const icon_mac = nativeImage.createFromPath(path.join(__dirname, "../media/icon-mac.png"));
+const icon_mac = nativeImage.createFromPath(path.join(__dirname, '../media/icon-mac.png'));
+
+const logger = createLogger();
+logger.add(new transports.Console());
 
 const displayEngine = new DisplayEngine();
-const pointerEngine = new PointerEngine();
+const pointerEngine = new PointerEngine({ logger: logger });
 const configEngine = new ConfigEngine();
 const robotEngine = new RobotEngine({
   displayEngine,
-  pointerEngine,
+  pointerEngine
 });
 
-app.on("ready", () => {
+app.on('ready', async () => {
   const tray = new Tray(
     icon_mac.resize({
       width: 16,
-      height: 16,
-    }),
+      height: 16
+    })
   );
+  buildLoadingMenu({ tray });
 
+  // need to get some permissions before we can continue
+  await waitForAllPermissions();
+
+  // can hide the dock at this point as permissions checks might need to icon so users can switch to the dialog
   app.dock.hide();
 
   const setupMovement = () => {
     return robotEngine.setupAssignments(configEngine.config);
   };
 
+  const buildMenuWrapped = () => {
+    buildMenu({
+      tray,
+      assignDisplayToDevice,
+      displayEngine,
+      pointerEngine,
+      configEngine,
+      autolauncher
+    });
+  };
+
   const assignDisplayToDevice = (display_id: string, device: PointerDevice) => {
     configEngine.update({
-      [device.product]: { display: display_id },
+      devices: {
+        ...configEngine.config.devices,
+        [device.product]: { display: display_id }
+      }
     });
-    buildMenu();
+    buildMenuWrapped();
     setupMovement();
   };
 
-  const buildMenu = async () => {
-    const autoLaunchEnabled = await autolauncher.isEnabled();
-
-    const menu = new Menu();
-    pointerEngine.getDevices().forEach((device) => {
-      const submenu = new Menu();
-      displayEngine.displays.forEach((display) => {
-        submenu.append(
-          new MenuItem({
-            label: display.label,
-            type: "radio",
-            checked: configEngine.config[device.product]?.display === display.label,
-            click: () => {
-              assignDisplayToDevice(display.label, device);
-            },
-          }),
-        );
-      });
-      submenu.append(new MenuItem({ type: "separator" }));
-      submenu.append(
-        new MenuItem({
-          type: "radio",
-          label: "None (uncontrolled)",
-          checked: configEngine.config[device.product]?.display == null,
-          click: () => {
-            assignDisplayToDevice(null, device);
-          },
-        }),
-      );
-
-      const deviceMenuItem = new MenuItem({ label: device.product, submenu: submenu });
-      menu.append(deviceMenuItem);
-    });
-    menu.append(new MenuItem({ type: "separator" }));
-    menu.append(
-      new MenuItem({
-        label: "Launch on startup",
-        type: "checkbox",
-        checked: autoLaunchEnabled,
-        click: async () => {
-          if (autoLaunchEnabled) {
-            await autolauncher.disable();
-          } else {
-            await autolauncher.enable();
-          }
-          setTimeout(() => {
-            buildMenu();
-          }, 100);
-        },
-      }),
-    );
-    menu.append(
-      new MenuItem({
-        label: "Quit",
-        click: async () => {
-          await pointerEngine.dispose();
-          app.exit(0);
-        },
-      }),
-    );
-
-    tray.setContextMenu(menu);
-
-    return menu;
-  };
-
   configEngine.init();
-  pointerEngine.init();
-  displayEngine.init();
-  buildMenu();
-  setupMovement();
+
+  // add a startup delay
+  const delay = (configEngine.config.startupDelay || 0) * 1_000;
+
+  if (delay > 0) {
+    buildLoadingMenu({ tray, message: `...waiting ${delay}ms (startup delay)` });
+  }
+
+  // might want startup delay
+  setTimeout(() => {
+    pointerEngine.init();
+    displayEngine.init();
+
+    pointerEngine.registerListener({
+      devicesChanged: () => {
+        buildMenuWrapped();
+        setupMovement();
+      }
+    });
+
+    buildMenuWrapped();
+    setupMovement();
+  }, delay);
 });

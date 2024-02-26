@@ -1,5 +1,5 @@
-import { screen } from "electron";
-import { BaseObserver } from "./BaseObserver";
+import { screen } from 'electron';
+import { BaseObserver } from './BaseObserver';
 import Display = Electron.Display;
 
 export interface DisplayListener {
@@ -19,10 +19,10 @@ export class DisplayEngine extends BaseObserver<DisplayListener> {
   }
 
   init() {
-    screen.on("display-added", () => {
+    screen.on('display-added', () => {
       this.recompute();
     });
-    screen.on("display-removed", () => {
+    screen.on('display-removed', () => {
       this.recompute();
     });
     this.recompute();

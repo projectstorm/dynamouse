@@ -4,19 +4,17 @@
 
 ## Intro
 
-Finally, a system for Mac that allows you to have multiple mice, multiple monitors and assign each to one another. 
-While Mac allows for multiple mice plugged-in at the same time, it doesn't allow multiple _cursors_ at the same time. 
+Finally, a system for Mac that allows you to have multiple mice, multiple monitors and assign each to one another.
+While Mac allows for multiple mice plugged-in at the same time, it doesn't allow multiple _cursors_ at the same time.
 
 DynaMouse allows you to assign a specific display to a dedicated mouse device (including the built-in mac trackpads) so that when you have multiple screens in a studio-like/complex workstation setup (and far apart from each other), you don't have to drag your mouse over to the other screen.
 
 Behold:
 
-![](screenshots/screenshot.png)
+![](screenshots/screenshot1.png)
+![](screenshots/screenshot2.png)
 
-When you first start DynaMouse and start configuring it, you will be asked to enable a few settings in System Preferences so that DynaMouse can:
-
-* Input monitoring (Access HID devices)
-* Accessibility (Control the mouse position)
+When you first start DynaMouse and start configuring it, you will be asked to enable Accessibility permissions in System Preferences so that DynaMouse can monitor usb pointer devices and also control the mouse position on the screen. Dynamouse will wait for these permissions to be enabled before continuing to boot up :)
 
 ## Features
 
@@ -27,6 +25,8 @@ When you first start DynaMouse and start configuring it, you will be asked to en
 * Each mouse's position is remembered on each screen
 * Non-obtrusive: doesn't lock the mouse to screen bounds, i.e. you can still drag a mouse to a different screen.
 * Can be configured to launch on login.
+* Can handle usb devices being attached / detached
+* Specify a startup delay (useful when various devices are busy booting up after login)
 
 ## Devices tested
 
@@ -58,4 +58,4 @@ I would appreciate some help on fixing this :)
 
 ### Releasing
 
-Binaries are auto-created and a release is published when a new tag is pushed to master. 
+Binaries are auto-created and a release is published when a new tag is pushed to master.

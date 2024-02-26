@@ -1,4 +1,4 @@
-import { v1 } from "uuid";
+import { v1 } from 'uuid';
 
 export interface BaseObserverInterface<T> {
   registerListener(listener: Partial<T>): () => void;

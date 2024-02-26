@@ -28,6 +28,9 @@ jobs:
         with:
           version: latest
 
+      - name: 'Some tooling for GYP libs'
+        run: sudo -H pip install setuptools
+
       - name: PNPM install
         run: pnpm install
 

@@ -1,10 +1,10 @@
-import { Display } from "electron";
-import { Config } from "./ConfigEngine";
-import { PointerDevice, PointerEngine } from "./PointerEngine";
-import { DisplayEngine } from "./DisplayEngine";
-import { BaseObserver } from "./BaseObserver";
-import { screen } from "electron";
-import { moveMouse } from "@jitsi/robotjs";
+import { Display } from 'electron';
+import { Config } from './ConfigEngine';
+import { PointerDevice, PointerEngine } from './PointerEngine';
+import { DisplayEngine } from './DisplayEngine';
+import { BaseObserver } from './BaseObserver';
+import { screen } from 'electron';
+import { moveMouse } from '@jitsi/robotjs';
 
 export interface AssignmentListener {
   willActivate: () => any;
@@ -20,7 +20,7 @@ export class Assignment extends BaseObserver<AssignmentListener> {
 
   constructor(
     protected device: PointerDevice,
-    protected display: Display,
+    protected display: Display
   ) {
     super();
     this.position_x = null;
@@ -32,7 +32,7 @@ export class Assignment extends BaseObserver<AssignmentListener> {
         if (!this.activated) {
           this.iterateListeners((cb) => cb.willActivate?.());
         }
-      },
+      }
     });
   }
 
@@ -112,12 +112,12 @@ export class RobotEngine {
   async setupAssignments(config: Config) {
     await Promise.all(this.assignments.map((a) => a.dispose()));
     this.assignments = [];
-    for (let key in config) {
+    for (let key in config.devices) {
       const device = this.options.pointerEngine.getDevice(key);
-      if (!config[key].display) {
+      if (!config.devices[key].display) {
         continue;
       }
-      const display = this.options.displayEngine.getDisplay(config[key].display);
+      const display = this.options.displayEngine.getDisplay(config.devices[key].display);
       if (!display || !device) {
         continue;
       }
@@ -135,7 +135,7 @@ export class RobotEngine {
         },
         disposed: () => {
           listener?.();
-        },
+        }
       });
       this.assignments.push(assignment);
     }

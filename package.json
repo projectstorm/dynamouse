@@ -12,7 +12,7 @@
     "build": "tsc",
     "watch": "tsc --watch",
     "start": "electron .",
-    "format": "prettier --write \"**/*.{ts,tsx,js,jsx}\"",
+    "format": "prettier --config .prettierrc --write \"src/**/*.{ts,tsx}\"",
     "app:dir": "electron-builder --dir",
     "app:dist": "electron-builder",
     "prepare": "rm -rf node_modules/electron/dist && node node_modules/electron/install.js"
@@ -33,23 +33,29 @@
     }
   },
   "dependencies": {
-    "uuid": "^9.0.1",
-    "node-hid": "^3.0.0",
-    "electron-json-storage": "^4.6.0",
-    "usb": "^2.11.0",
-    "lodash": "^4.17.21",
     "@jitsi/robotjs": "^0.6.13",
-    "auto-launch": "^5.0.6"
+    "auto-launch": "^5.0.6",
+    "async": "^3.2.5",
+    "electron-json-storage": "^4.6.0",
+    "lodash": "^4.17.21",
+    "node-hid": "^3.0.0",
+    "source-map-support": "^0.5.21",
+    "usb": "^2.11.0",
+    "uuid": "^9.0.1",
+    "winston": "^3.11.0",
+    "node-mac-permissions": "^2.3.0"
   },
   "devDependencies": {
+    "@types/async": "^3.2.24",
     "@types/auto-launch": "^5.0.5",
     "@types/electron-json-storage": "^4.5.4",
+    "@types/lodash": "^4.14.202",
+    "@types/node": "^20.11.20",
     "@types/uuid": "^9.0.8",
-    "@types/node": "^20.11.10",
-    "electron": "^28.2.0",
-    "electron-builder": "^24.9.1",
+    "electron": "^29.0.1",
+    "electron-builder": "^24.12.0",
+    "prettier": "^3.2.5",
     "typescript": "^5.3.3",
-    "prettier": "^3.2.4",
-    "@types/lodash": "^4.14.202"
+    "husky": "^9.0.11"
   }
 }
