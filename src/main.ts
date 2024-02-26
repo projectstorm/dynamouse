@@ -28,15 +28,6 @@ const robotEngine = new RobotEngine({
   pointerEngine
 });
 
-const wasOpenedAtLogin = () => {
-  try {
-    let loginSettings = app.getLoginItemSettings();
-    return loginSettings.openAtLogin;
-  } catch {
-    return false;
-  }
-};
-
 app.on('ready', async () => {
   const tray = new Tray(
     icon_mac.resize({
@@ -78,10 +69,6 @@ app.on('ready', async () => {
     setupMovement();
   };
 
-  configEngine.init();
-  pointerEngine.init();
-  displayEngine.init();
-
   pointerEngine.registerListener({
     devicesChanged: () => {
       buildMenuWrapped();
@@ -90,11 +77,7 @@ app.on('ready', async () => {
   });
 
   // add a startup delay
-  let delay = 0;
-  if (wasOpenedAtLogin()) {
-    delay = (configEngine.config.startupDelay || 0) * 1_000;
-    logger.info(`Started via daemon, applying start delay of ${delay}ms`);
-  }
+  const delay = (configEngine.config.startupDelay || 0) * 1_000;
 
   if (delay > 0) {
     buildLoadingMenu({ tray, message: `...waiting ${delay}ms (startup delay)` });
@@ -102,6 +85,10 @@ app.on('ready', async () => {
 
   // might want startup delay
   setTimeout(() => {
+    configEngine.init();
+    pointerEngine.init();
+    displayEngine.init();
+
     buildMenuWrapped();
     setupMovement();
   }, delay);
