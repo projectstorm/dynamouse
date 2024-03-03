@@ -3,3 +3,4 @@ dist
 dist_electron
 .idea
 .DS_Store
+*.log

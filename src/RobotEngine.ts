@@ -5,6 +5,7 @@ import { DisplayEngine } from './DisplayEngine';
 import { BaseObserver } from './BaseObserver';
 import { screen } from 'electron';
 import { moveMouse } from '@jitsi/robotjs';
+import { Logger } from 'winston';
 
 export interface AssignmentListener {
   willActivate: () => any;
@@ -98,18 +99,23 @@ export class Assignment extends BaseObserver<AssignmentListener> {
 export interface RobotEngineOptions {
   pointerEngine: PointerEngine;
   displayEngine: DisplayEngine;
+  logger: Logger;
 }
 
 export class RobotEngine {
   assignments: Assignment[];
   lock: boolean;
 
+  protected logger: Logger;
+
   constructor(protected options: RobotEngineOptions) {
     this.assignments = [];
     this.lock = false;
+    this.logger = options.logger.child({ namespace: 'ROBOT' });
   }
 
   async setupAssignments(config: Config) {
+    this.logger.debug('Re-initializing');
     await Promise.all(this.assignments.map((a) => a.dispose()));
     this.assignments = [];
     for (let key in config.devices) {
@@ -127,6 +133,7 @@ export class RobotEngine {
           if (this.lock) {
             return;
           }
+          this.logger.debug(`Activating: ${device.product}`);
           this.lock = true;
           const activated = this.assignments.find((a) => a.activated);
           await activated?.deactivate();

@@ -31,7 +31,8 @@ export class PointerDevice extends BaseObserver<PointerDeviceListener> {
     const data_cb = () => {
       this.iterateListeners((cb) => cb.moved?.());
     };
-    const error_cb = () => {
+    const error_cb = (err) => {
+      this.logger.error(err);
       // do nothing for now
     };
     this.resource.on('error', error_cb);
@@ -104,10 +105,8 @@ export class PointerEngine extends BaseObserver<PointerEngineListener> {
 
   refreshDeviceList() {
     this.logger.info('Refreshing device list');
-    let pointerDevices = _.chain(devices())
-      .filter((d) => d.usage === 2)
-      .uniqBy((u) => u.serialNumber)
-      .value();
+    let pointerDevices = _.filter(devices(), (d) => d.usage === 2 && d.usagePage === 1);
+    let unique = _.uniqBy(pointerDevices, (u) => u.serialNumber);
 
     const snMapper = (a: PointerDevice | Device) => {
       if (a instanceof PointerDevice) {
@@ -117,12 +116,12 @@ export class PointerEngine extends BaseObserver<PointerEngineListener> {
     };
 
     // devices to remove
-    _.differenceBy(this.getDevices(), pointerDevices, snMapper).forEach((d) => {
+    _.differenceBy(this.getDevices(), unique, snMapper).forEach((d) => {
       d.detach();
     });
 
     // devices to add
-    _.differenceBy(pointerDevices, this.getDevices(), snMapper).forEach((d) => {
+    _.differenceBy(unique, this.getDevices(), snMapper).forEach((d) => {
       const device = new PointerDevice({
         device: d,
         logger: this.logger
@@ -141,12 +140,12 @@ export class PointerEngine extends BaseObserver<PointerEngineListener> {
 
   init() {
     usb.on('attach', () => {
-      this.logger.info('Device attached');
+      this.logger.debug('Device attached');
       this.refreshDeviceList();
     });
 
     usb.on('detach', () => {
-      this.logger.info('Device detached');
+      this.logger.debug('Device detached');
       this.refreshDeviceList();
     });
     this.refreshDeviceList();

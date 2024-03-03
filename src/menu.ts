@@ -1,6 +1,6 @@
-import { app, Menu, MenuItem, Tray } from 'electron';
+import { Menu, MenuItem, Tray } from 'electron';
 import { DisplayEngine } from './DisplayEngine';
-import { PointerDevice, PointerEngine } from './PointerEngine';
+import { PointerEngine } from './PointerEngine';
 import { ConfigEngine } from './ConfigEngine';
 import AutoLaunch from 'auto-launch';
 
@@ -9,7 +9,8 @@ export interface BuildMenuOptions {
   pointerEngine: PointerEngine;
   displayEngine: DisplayEngine;
   configEngine: ConfigEngine;
-  assignDisplayToDevice: (screen: string, device: PointerDevice) => any;
+  rebuildMenu: () => any;
+  quit: () => any;
   tray: Tray;
 }
 
@@ -27,17 +28,59 @@ export const buildLoadingMenu = (options: { tray: Tray; message?: string }) => {
 };
 
 export const buildMenu = async (options: BuildMenuOptions) => {
-  const { autolauncher, pointerEngine, displayEngine, configEngine, assignDisplayToDevice, tray } = options;
-  const rebuildMenu = () => {
-    setTimeout(() => {
-      buildMenu(options);
-    }, 100);
-  };
-
-  // set temp menu while loading the autolaunch options (it can take a while initially)
-  const autoLaunchEnabled = await autolauncher.isEnabled();
+  const { tray } = options;
   const menu = new Menu();
-  pointerEngine.getDevices().forEach((device) => {
+
+  // assignments
+  buildAssignmentMenus(options).forEach((m) => {
+    menu.append(m);
+  });
+
+  // eveything else
+  menu.append(new MenuItem({ type: 'separator' }));
+  menu.append(await buildStartupMenu(options));
+  menu.append(buildDebugMenu(options));
+  menu.append(new MenuItem({ type: 'separator' }));
+  menu.append(
+    new MenuItem({
+      label: 'Quit',
+      click: async () => {
+        options.quit();
+      }
+    })
+  );
+
+  tray.setContextMenu(menu);
+
+  return menu;
+};
+
+export const buildDebugMenu = (options: BuildMenuOptions) => {
+  const { configEngine } = options;
+  const menu = new Menu();
+
+  menu.append(
+    new MenuItem({
+      label: 'File Logging',
+      type: 'checkbox',
+      checked: !!configEngine.config.logFile,
+      click: () => {
+        configEngine.update({
+          logFile: !configEngine.config.logFile
+        });
+      }
+    })
+  );
+
+  return new MenuItem({
+    label: 'Debug',
+    submenu: menu
+  });
+};
+
+export const buildAssignmentMenus = (options: BuildMenuOptions) => {
+  const { pointerEngine, displayEngine, configEngine, tray } = options;
+  return pointerEngine.getDevices().map((device) => {
     const submenu = new Menu();
     displayEngine.displays.forEach((display) => {
       submenu.append(
@@ -46,7 +89,12 @@ export const buildMenu = async (options: BuildMenuOptions) => {
           type: 'radio',
           checked: configEngine.config.devices?.[device.product]?.display === display.label,
           click: () => {
-            assignDisplayToDevice(display.label, device);
+            configEngine.update({
+              devices: {
+                ...configEngine.config.devices,
+                [device.product]: { display: display.label }
+              }
+            });
           }
         })
       );
@@ -58,18 +106,28 @@ export const buildMenu = async (options: BuildMenuOptions) => {
         label: 'None (uncontrolled)',
         checked: configEngine.config.devices?.[device.product]?.display == null,
         click: () => {
-          assignDisplayToDevice(null, device);
+          configEngine.update({
+            devices: {
+              ...configEngine.config.devices,
+              [device.product]: { display: null }
+            }
+          });
         }
       })
     );
 
-    const deviceMenuItem = new MenuItem({ label: device.product, submenu: submenu });
-    menu.append(deviceMenuItem);
+    return new MenuItem({ label: device.product, submenu: submenu });
   });
+};
 
-  // !--------------- STARTUP ----------------
+export const buildStartupMenu = async (options: {
+  autolauncher: AutoLaunch;
+  rebuildMenu: () => any;
+  configEngine: ConfigEngine;
+}) => {
+  const { autolauncher, rebuildMenu, configEngine } = options;
 
-  menu.append(new MenuItem({ type: 'separator' }));
+  const autoLaunchEnabled = await autolauncher.isEnabled();
   const startupMenu = new Menu();
   startupMenu.append(
     new MenuItem({
@@ -106,24 +164,8 @@ export const buildMenu = async (options: BuildMenuOptions) => {
     );
   });
 
-  menu.append(
-    new MenuItem({
-      label: 'Launch on startup',
-      submenu: startupMenu
-    })
-  );
-
-  menu.append(
-    new MenuItem({
-      label: 'Quit',
-      click: async () => {
-        await pointerEngine.dispose();
-        app.exit(0);
-      }
-    })
-  );
-
-  tray.setContextMenu(menu);
-
-  return menu;
+  return new MenuItem({
+    label: 'Launch on startup',
+    submenu: startupMenu
+  });
 };
