@@ -1,4 +1,6 @@
 import * as storage from 'electron-json-storage';
+import { BaseObserver } from './BaseObserver';
+import { Logger } from 'winston';
 
 export interface Config {
   devices: {
@@ -7,16 +9,28 @@ export interface Config {
     };
   };
   startupDelay: number;
+  logFile: boolean;
 }
 
-export class ConfigEngine {
+export interface ConfigEngineListener {
+  configChanged: (changedConfig: Partial<Config>) => any;
+}
+
+export interface ConfigEngineOptions {
+  logger: Logger;
+}
+
+export class ConfigEngine extends BaseObserver<ConfigEngineListener> {
   static VERSION = 2;
   static KEY = 'dynamouse';
 
   config: Config;
+  protected logger: Logger;
 
-  constructor() {
-    this.config = { devices: {}, startupDelay: 0 };
+  constructor(protected options: ConfigEngineOptions) {
+    super();
+    this.logger = options.logger.child({ namespace: 'CONFIG' });
+    this.config = { devices: {}, startupDelay: 0, logFile: false };
   }
 
   init() {
@@ -30,15 +44,21 @@ export class ConfigEngine {
     return `${ConfigEngine.KEY}-${ConfigEngine.VERSION}`;
   }
 
-  update(config: Partial<Config>) {
+  async update(config: Partial<Config>) {
     this.config = {
       ...this.config,
       ...config
     };
-    storage.set(this.saveKey, this.config, (err) => {
-      if (err) {
-        console.error('failed to store settings', err);
-      }
+    await new Promise<void>((resolve, reject) => {
+      storage.set(this.saveKey, this.config, (err) => {
+        if (err) {
+          this.logger.error('failed to store settings', err);
+          return reject(err);
+        }
+        resolve();
+      });
     });
+    this.logger.debug(`Config updated`, this.config);
+    this.iterateListeners((cb) => cb.configChanged?.(config));
   }
 }

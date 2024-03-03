@@ -1,14 +1,13 @@
 import { app, nativeImage, Tray } from 'electron';
 import * as path from 'path';
 import { DisplayEngine } from './DisplayEngine';
-import { PointerDevice, PointerEngine } from './PointerEngine';
+import { PointerEngine } from './PointerEngine';
 import { ConfigEngine } from './ConfigEngine';
 import { RobotEngine } from './RobotEngine';
 import AutoLaunch from 'auto-launch';
 import { createLogger, transports } from 'winston';
 import { buildLoadingMenu, buildMenu } from './menu';
 import { waitForAllPermissions } from './permissions';
-import {} from 'async';
 
 require('source-map-support').install();
 
@@ -19,12 +18,14 @@ const autolauncher = new AutoLaunch({
 const icon_mac = nativeImage.createFromPath(path.join(__dirname, '../media/icon-mac.png'));
 
 const logger = createLogger();
-logger.add(new transports.Console());
+
+logger.add(new transports.Console({ level: 'debug' }));
 
 const displayEngine = new DisplayEngine();
-const pointerEngine = new PointerEngine({ logger: logger });
-const configEngine = new ConfigEngine();
+const pointerEngine = new PointerEngine({ logger });
+const configEngine = new ConfigEngine({ logger });
 const robotEngine = new RobotEngine({
+  logger,
   displayEngine,
   pointerEngine
 });
@@ -48,41 +49,42 @@ app.on('ready', async () => {
     return robotEngine.setupAssignments(configEngine.config);
   };
 
+  const dispose = async () => {
+    logger.debug('Disposing app');
+    await pointerEngine.dispose();
+  };
+
   const buildMenuWrapped = () => {
     buildMenu({
       tray,
-      assignDisplayToDevice,
+      quit: async () => {
+        await dispose();
+        app.exit(0);
+      },
       displayEngine,
       pointerEngine,
       configEngine,
-      autolauncher
-    });
-  };
-
-  const assignDisplayToDevice = (display_id: string, device: PointerDevice) => {
-    configEngine.update({
-      devices: {
-        ...configEngine.config.devices,
-        [device.product]: { display: display_id }
+      autolauncher,
+      rebuildMenu: () => {
+        buildMenuWrapped();
       }
     });
-    buildMenuWrapped();
-    setupMovement();
   };
 
-  configEngine.init();
-
-  // add a startup delay
-  const delay = (configEngine.config.startupDelay || 0) * 1_000;
-
-  if (delay > 0) {
-    buildLoadingMenu({ tray, message: `...waiting ${delay}ms (startup delay)` });
-  }
-
-  // might want startup delay
-  setTimeout(() => {
+  const init = () => {
     pointerEngine.init();
     displayEngine.init();
+
+    configEngine.registerListener({
+      configChanged: ({ devices }) => {
+        buildMenuWrapped();
+
+        // if devices changed, then also setupMovementAgain
+        if (devices) {
+          setupMovement();
+        }
+      }
+    });
 
     pointerEngine.registerListener({
       devicesChanged: () => {
@@ -93,5 +95,22 @@ app.on('ready', async () => {
 
     buildMenuWrapped();
     setupMovement();
-  }, delay);
+  };
+
+  configEngine.init();
+
+  // useful for debugging
+  if (configEngine.config.logFile) {
+    logger.add(new transports.File({ filename: 'combined.log', level: 'debug' }));
+  }
+
+  // add a startup delay
+  const delay = (configEngine.config.startupDelay || 0) * 1_000;
+  if (delay > 0) {
+    buildLoadingMenu({ tray, message: `...waiting ${delay}ms (startup delay)` });
+    setTimeout(init, delay);
+  } else {
+    // doing this outside of a setTimeout may help with node event loops for some cases :shrug:
+    init();
+  }
 });
