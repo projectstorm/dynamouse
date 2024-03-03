@@ -101,7 +101,7 @@ app.on('ready', async () => {
 
   // useful for debugging
   if (configEngine.config.logFile) {
-    logger.add(new transports.File({ filename: 'combined.log', level: 'debug' }));
+    logger.add(new transports.File({ filename: 'combined.log', dirname: app.getPath('logs'), level: 'debug' }));
   }
 
   // add a startup delay
