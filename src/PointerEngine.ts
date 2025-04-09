@@ -106,8 +106,9 @@ export class PointerEngine extends BaseObserver<PointerEngineListener> {
   refreshDeviceList() {
     this.logger.info('Refreshing device list');
     let pointerDevices = _.filter(devices(), (d) => d.usage === 2 && d.usagePage === 1);
-    let unique = _.uniqBy(pointerDevices, (u) => u.serialNumber);
-
+    const uniqueByProduct = _.uniqBy(pointerDevices.filter(item => !item.serialNumber), 'product');
+    const uniqueBySerialNumber = _.uniqBy(pointerDevices.filter(item => item.serialNumber), 'serialNumber');
+    let unique = [...uniqueByProduct, ...uniqueBySerialNumber];
     const snMapper = (a: PointerDevice | Device) => {
       if (a instanceof PointerDevice) {
         return a.sn;
